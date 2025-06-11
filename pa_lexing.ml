@@ -50,7 +50,6 @@
  ****************************************************************************)
 
 open Earley_core
-module EarleyStr = Earley_str
 
 (*
  * The exception [Unclosed_comment(is_string, buf, pos)] is raised when
