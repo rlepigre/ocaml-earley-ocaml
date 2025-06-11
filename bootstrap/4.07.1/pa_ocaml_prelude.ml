@@ -1,3 +1,5 @@
+open Earley_core
+module EarleyStr = Earley_str
 open Input
 open Earley
 open Asttypes

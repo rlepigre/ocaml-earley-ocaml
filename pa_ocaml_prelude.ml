@@ -44,7 +44,8 @@
   knowledge of the CeCILL-B license and that you accept its terms.
   ======================================================================
 *)
-
+open Earley_core
+module EarleyStr = Earley_str
 open Input
 open Earley
 open Asttypes

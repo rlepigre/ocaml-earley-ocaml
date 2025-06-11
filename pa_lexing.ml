@@ -49,6 +49,9 @@
  * OCaml comments.                                                          *
  ****************************************************************************)
 
+open Earley_core
+module EarleyStr = Earley_str
+
 (*
  * The exception [Unclosed_comment(is_string, buf, pos)] is raised when
  * the comment (resp. string litteral in a comment) at position [pos] in

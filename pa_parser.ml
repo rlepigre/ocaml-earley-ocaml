@@ -45,6 +45,7 @@
   ======================================================================
 *)
 
+open Earley_core
 open Asttypes
 open Parsetree
 open Longident

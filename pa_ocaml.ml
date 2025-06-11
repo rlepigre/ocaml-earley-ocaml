@@ -45,6 +45,7 @@
   ======================================================================
 *)
 
+open Earley_core
 open Input
 open Earley
 open Charset
@@ -301,13 +302,10 @@ let parser poly_syntax_typexpr =
 
 let parser method_type =
   | mn:method_name ':' pte:poly_typexpr ->
-#ifversion < 4.06
-       mn, [], pte
-#else
        Otag(mn, [], pte)
   | ty:(typexpr_lvl (next_type_prio DashType)) ->
        Oinherit(ty)
-#endif
+
 
 let parser tag_spec =
   | tn:tag_name te:{_:of_kw '&'? typexpr}? ->
@@ -315,9 +313,7 @@ let parser tag_spec =
               | None   -> true, []
               | Some (amp,l) -> amp<>None, [l]
       in
-#ifversion >= 4.06.0
       let tn = id_loc tn _loc_tn in
-#endif
       Rtag (tn, [], amp, t)
 
   | te:typexpr ->
@@ -329,9 +325,7 @@ let parser tag_spec_first =
               | None   -> true,[]
               | Some (amp,l) -> amp<>None, [l]
       in
-#ifversion >= 4.06.0
       let tn = id_loc tn _loc_tn in
-#endif
       [Rtag (tn, [], amp, t)]
   | te:typexpr? '|' ts:tag_spec ->
       match te with
@@ -341,9 +335,7 @@ let parser tag_spec_first =
 let parser tag_spec_full =
   | tn:tag_name (amp,tes):{of_kw amp:'&'? te:typexpr
     tes:{'&' te:typexpr}* -> (amp<>None,(te::tes))}?[true,[]] ->
-#ifversion >= 4.06.0
       let tn = id_loc tn _loc_tn in
-#endif
       Rtag (tn, [], amp, tes)
   | te:typexpr ->
       Rinherit te
@@ -657,9 +649,7 @@ let _ = set_grammar class_field_spec (
   | inherit_kw cbt:class_body_type ->
       pctf_loc _loc (Pctf_inherit cbt)
   | val_kw (vir,mut):virt_mut ivn:inst_var_name STR(":") te:typexpr ->
-#ifversion >= 4.05
         let ivn = id_loc ivn _loc_ivn in
-#endif
         pctf_loc _loc (Pctf_val (ivn, mut, vir, te))
   | method_kw (v,pri):virt_priv mn:method_name STR(":") te:poly_typexpr ->
         Ctf.method_ ~loc:_loc mn pri v te
@@ -1068,12 +1058,8 @@ let _ = set_grammar let_binding (
          | Some ty ->
             (* FIXME OCAML: crisper position are possible!*)
             let loc = ghost _loc in
-#ifversion >= 4.06.0
             let poly_ty = Typ.poly ~loc:(ghost _loc(*_ty*)) [] ty in
             (Pat.constraint_ ~loc pat poly_ty, Exp.constraint_ ~loc e ty)
-#else
-            (pat, Exp.constraint_ ~loc e ty)
-#endif
        in
        value_binding ~attributes:(attach_attrib loc a) loc pat e::l)
   | vn:value_name e:right_member a:post_item_attributes l:{_:and_kw let_binding}?[[]] ->
@@ -1188,11 +1174,7 @@ let _ = set_grammar class_expr (
 
 let parser class_field =
   | inherit_kw o:override_flag ce:class_expr
-#ifversion >= 4.05
                id:{_:as_kw id:lident -> id_loc id _loc_id}? ->
-#else
-               id:{_:as_kw lident}? ->
-#endif
       loc_pcf _loc (Pcf_inherit (o, ce, id))
   | val_kw o:override_flag m:mutable_flag ivn:inst_var_name te:{CHR(':') t:typexpr}?
     CHR('=') e:expression ->
@@ -1698,17 +1680,9 @@ let parser mod_constraint =
       let tcn0 = id_loc (Longident.last tcn) _loc_tcn in
       let _tcn = id_loc tcn _loc_tcn in
       let td = type_declaration _loc tcn0 tps [] Ptype_abstract Public (Some te) in
-#ifversion >= 4.06.0
       Pwith_typesubst (_tcn,td)
-#else
-      Pwith_typesubst td
-#endif
-#ifversion >= 4.06.0
   | module_kw mn:module_path STR(":=") emp:extended_module_path ->
       let mn = id_loc mn _loc_mn in
-#else
-  | module_kw mn:module_name STR(":=") emp:extended_module_path ->
-#endif
       Pwith_modsubst(mn, id_loc emp _loc_emp)
 
 let _ = set_grammar module_type (

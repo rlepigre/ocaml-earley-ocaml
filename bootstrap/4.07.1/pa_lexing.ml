@@ -1,3 +1,5 @@
+open Earley_core
+module EarleyStr = Earley_str
 exception Unclosed_comment of bool * Input.buffer * int 
 let unclosed_comment : type a. (Input.buffer * int) -> a =
   fun (buf, pos) -> raise (Unclosed_comment (false, buf, pos))

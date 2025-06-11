@@ -1,3 +1,6 @@
+open Earley_core
+module EarleyStr = Earley_str
+
 (* AST of types *)
 
 type btype =
